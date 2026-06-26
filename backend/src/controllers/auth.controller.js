@@ -2,13 +2,12 @@ const User = require("../models/user.model");
 const generateToken = require("../utils/generateToken");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const validateSignUpData = require("../utils/validate");
+const { validateSignUpData } = require("../utils/validate");
 
 const signUp = async (req, res) => {
-    const { firstName, lastName, email, password } = req.body;
+  const { firstName, lastName, email, password } = req.body;
 
   try {
-
     // Validate the input data
     const { valid, errors } = validateSignUpData({
       firstName,
@@ -19,8 +18,6 @@ const signUp = async (req, res) => {
     if (!valid) {
       return res.status(400).json({ errors });
     }
-
- 
 
     // Check if the user already exists
     const existingUser = await User.findOne({ email });
@@ -65,14 +62,14 @@ const signUp = async (req, res) => {
 //Sign In Controller
 const signIn = async (req, res) => {
   const { email, password } = req.body;
-
+console.log("SignIn called", req.body);
   // Check if user exists
   try {
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ error: "User not found" });
     }
-
+console.log("User found", user.password, password);
     // Compare password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
@@ -104,10 +101,9 @@ const signIn = async (req, res) => {
 //logout controller
 const logout = (req, res) => {
   res.clearCookie("token");
-res.status(200).json({
-    message: "User logged out successfully"
+  res.status(200).json({
+    message: "User logged out successfully",
   });
-
 };
 
 module.exports = {
