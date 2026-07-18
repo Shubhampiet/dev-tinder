@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
+const bcrypt = require("bcryptjs");
 
 const userSchema = mongoose.Schema(
   {
@@ -15,10 +16,26 @@ const userSchema = mongoose.Schema(
       },
     },
     password: { type: String, required: true, minlength: 6 },
+    refreshToken: {
+      type: String,
+    },
   },
 
   { timestamps: true },
 );
+
+userSchema.pre("save", async function () {
+  try {
+    if (!this.isModified("password")) {
+      return;
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+  } catch (err) {
+    next(err);
+  }
+});
 
 const User = mongoose.model("User", userSchema);
 module.exports = User;
